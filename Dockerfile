@@ -1,0 +1,15 @@
+FROM golang:1.18.3-alpine as builder
+
+WORKDIR /app
+
+ADD go.mod .
+
+ADD *.go .
+
+RUN CGO_ENABLED=0 GOOS=linux go build -a -o piadocas .
+
+FROM scratch
+
+COPY --from=builder /app/piadocas .
+
+ENTRYPOINT [ "./piadocas" ]
