@@ -44,6 +44,11 @@ func (server *Server) GetJokes(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if len(*jokesGotten) == 0 {
+		responses.JSON(w, http.StatusNotFound, jokesGotten)
+		return
+	}
+
 	responses.JSON(w, http.StatusOK, jokesGotten)
 }
 
