@@ -2,6 +2,7 @@ package model
 
 import (
 	"errors"
+	"fmt"
 	"html"
 	"strings"
 	"time"
@@ -62,7 +63,8 @@ func (j *Joke) CollectUserJokes(db *gorm.DB) (*[]Joke, error) {
 
 	jokes := []Joke{}
 
-	err = db.Debug().Model(&Joke{}).Where("owner = ?", j.Owner).Error
+	fmt.Println(j.Owner)
+	err = db.Debug().Model(&Joke{}).Where("owner = ?", j.Owner).Find(&jokes).Error
 	if err != nil {
 		return &[]Joke{}, err
 	}
