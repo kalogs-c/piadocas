@@ -5,11 +5,10 @@ import (
 	"os"
 
 	"github.com/joho/godotenv"
-	"github.com/kalogs-c/piadocas/controllers"
-	"github.com/kalogs-c/piadocas/seed"
+	"github.com/kalogs-c/piadocas/controller"
 )
 
-var server controllers.Server = controllers.Server{}
+var server controller.Server = controller.Server{}
 
 func main() {
 	err := godotenv.Load()
@@ -18,8 +17,6 @@ func main() {
 	}
 
 	server.Initialize(os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_PORT"), os.Getenv("DB_HOST"), os.Getenv("DB_NAME"))
-
-	seed.Load(server.DB)
 
 	server.Run(":8080")
 }
