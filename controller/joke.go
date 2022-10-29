@@ -1,4 +1,4 @@
-package controllers
+package controller
 
 import (
 	"encoding/json"
@@ -23,7 +23,7 @@ func (server *Server) CreateJoke(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		responses.ERROR(w, http.StatusUnprocessableEntity, err)
 	}
-
+	
 	jokeCreated, err := joke.Save(server.DB)
 	if err != nil {
 		responses.ERROR(w, http.StatusInternalServerError, err)
@@ -67,5 +67,5 @@ func (server *Server) DeleteJoke(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Entity", fmt.Sprintf("%d", jokeId))
-	responses.JSON(w, http.StatusNoContent, "")
+	responses.JSON(w, http.StatusOK, "Deleted sucessfully")
 }
