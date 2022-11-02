@@ -10,4 +10,6 @@ FROM scratch
 
 COPY --from=builder /app/piadocas .
 
+COPY --from=builder /app/.env .  
+
 ENTRYPOINT [ "./piadocas" ]

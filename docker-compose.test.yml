@@ -1,0 +1,36 @@
+version: "3.3"
+
+services:
+  app_test:
+    container_name: app_test
+    build:
+      context: .
+      dockerfile: ./Test.Dockerfile
+    depends_on:
+      - test_mysql
+    networks:
+      - piadoca-test-network
+
+  test_mysql:
+    image: mysql:5.7
+    container_name: test_mysql
+    ports:
+      - 3333:3306
+    environment:
+      - MYSQL_DATABASE=${TEST_DB_NAME}
+      - MYSQL_USER=${DB_USER}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+      - DATABASE_HOST=${DB_HOST}
+    volumes:
+      - mysql_test:/var/lib/mysql
+    networks:
+      - piadoca-test-network
+
+volumes:
+  api_test:
+  mysql_test:
+
+networks:
+  piadoca-test-network:
+    driver: bridge
