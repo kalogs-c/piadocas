@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-
-	"github.com/kalogs-c/piadocas/model"
+	"os"
 
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/postgres"
 
-	_ "github.com/jinzhu/gorm/dialects/mysql"
+	"github.com/kalogs-c/piadocas/model"
 )
 
 type Server struct {
@@ -18,13 +18,12 @@ type Server struct {
 	Router *mux.Router
 }
 
-func (server *Server) Initialize(DbUser, DbPassword, DbPort, DbHost, DbName string) {
+func (server *Server) Initialize() {
 	var err error
 
-	DbUrl := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local", DbUser, DbPassword, DbHost, DbPort, DbName)
-	server.DB, err = gorm.Open("mysql", DbUrl)
+	server.DB, err = gorm.Open("postgres", os.Getenv("DB_CONN"))
 	if err != nil {
-		fmt.Println("Cannot connect to mysql database.")
+		fmt.Println("Cannot connect to postgres database.")
 		log.Fatal("Failed to connect to db: ", err)
 	}
 	fmt.Println("Connected to mysql database.")

@@ -8,12 +8,15 @@ import (
 
 	"github.com/jinzhu/gorm"
 	"github.com/joho/godotenv"
+
 	"github.com/kalogs-c/piadocas/controller"
 	"github.com/kalogs-c/piadocas/model"
 )
 
-var server = controller.Server{}
-var jokeInstance = &model.Joke{}
+var (
+	server       = controller.Server{}
+	jokeInstance = &model.Joke{}
+)
 
 func TestMain(m *testing.M) {
 	err := godotenv.Load(os.ExpandEnv("./../../.env"))
@@ -28,8 +31,7 @@ func TestMain(m *testing.M) {
 func Database() {
 	var err error
 
-	DbURL := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local", os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_HOST"), os.Getenv("DB_PORT"), os.Getenv("TEST_DB_NAME"))
-	server.DB, err = gorm.Open("mysql", DbURL)
+	server.DB, err = gorm.Open("postgres", os.Getenv("DB_CONN"))
 	if err != nil {
 		fmt.Println("Cannot connect to the database")
 		log.Fatal("This is the error:", err)
