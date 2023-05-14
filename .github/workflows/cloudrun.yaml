@@ -52,4 +52,3 @@ jobs:
         image: ${{ env.IMAGE }}
         env_vars: |
           DB_CONN=${{ secrets.DB_CONN }}
-          API_SECRET=${{ secrets.API_SECRET }}  
