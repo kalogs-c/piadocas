@@ -6,8 +6,10 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gorilla/mux"
+
 	"github.com/kalogs-c/piadocas/model"
 	"github.com/kalogs-c/piadocas/responses"
 )
@@ -23,7 +25,7 @@ func (server *Server) CreateJoke(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		responses.ERROR(w, http.StatusUnprocessableEntity, err)
 	}
-	
+
 	jokeCreated, err := joke.Save(server.DB)
 	if err != nil {
 		responses.ERROR(w, http.StatusInternalServerError, err)
@@ -33,7 +35,7 @@ func (server *Server) CreateJoke(w http.ResponseWriter, r *http.Request) {
 	responses.JSON(w, http.StatusCreated, jokeCreated)
 }
 
-func (server *Server) GetJokes(w http.ResponseWriter, r *http.Request) {
+func (server *Server) GetUserJokes(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	username := vars["owner"]
 
@@ -44,7 +46,50 @@ func (server *Server) GetJokes(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if len(*jokesGotten) == 0 {
+	if len(jokesGotten) == 0 {
+		responses.JSON(w, http.StatusNotFound, jokesGotten)
+		return
+	}
+
+	responses.JSON(w, http.StatusOK, jokesGotten)
+}
+
+func (server *Server) GetJokesByLang(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	language := vars["language"]
+
+	joke := model.Joke{Language: model.Language(language)}
+	jokesGotten, err := joke.CollectJokesByLang(server.DB)
+	if err != nil {
+		responses.ERROR(w, http.StatusBadRequest, err)
+		return
+	}
+
+	if len(jokesGotten) == 0 {
+		responses.JSON(w, http.StatusNotFound, jokesGotten)
+		return
+	}
+
+	responses.JSON(w, http.StatusOK, jokesGotten)
+}
+
+func (server *Server) GetJokesByTimeRange(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	timeRangeString := vars["time_range"]
+	timeRange, err := time.Parse("2006-01-02", timeRangeString)
+	if err != nil {
+		responses.ERROR(w, http.StatusBadRequest, err)
+		return
+	}
+
+	joke := model.Joke{CreatedAt: timeRange}
+	jokesGotten, err := joke.CollectJokesByTimeRange(server.DB)
+	if err != nil {
+		responses.ERROR(w, http.StatusBadRequest, err)
+		return
+	}
+
+	if len(jokesGotten) == 0 {
 		responses.JSON(w, http.StatusNotFound, jokesGotten)
 		return
 	}

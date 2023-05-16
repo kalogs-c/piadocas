@@ -2,7 +2,6 @@ package model
 
 import (
 	"errors"
-	"fmt"
 	"html"
 	"strings"
 	"time"
@@ -10,11 +9,19 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+type Language string
+
+const (
+	PTBR = "pt-br"
+	EN   = "en"
+)
+
 type Joke struct {
-	ID        uint32    `json:"id" gorm:"primary_key;unique;auto_increment"`
-	Call      string    `json:"call" gorm:"size:255;not null"`
-	Finish    string    `json:"finish" gorm:"size:100;not null"`
-	Owner     string    `json:"owner" gorm:"not null"`
+	ID        uint32    `json:"id"         gorm:"primary_key;unique;auto_increment"`
+	Call      string    `json:"call"       gorm:"size:255;not null"`
+	Finish    string    `json:"finish"     gorm:"size:100;not null"`
+	Owner     string    `json:"owner"      gorm:"not null"`
+	Language  Language  `json:"language"   gorm:"not null;size:5"`
 	CreatedAt time.Time `json:"created_at" gorm:"default:CURRENT_TIMESTAMP"`
 }
 
@@ -58,16 +65,53 @@ func (j *Joke) Delete(db *gorm.DB) error {
 	return nil
 }
 
-func (j *Joke) CollectUserJokes(db *gorm.DB) (*[]Joke, error) {
+func (j *Joke) CollectUserJokes(db *gorm.DB) ([]Joke, error) {
 	var err error
 
 	jokes := []Joke{}
 
-	fmt.Println(j.Owner)
-	err = db.Debug().Model(&Joke{}).Where("owner = ?", j.Owner).Find(&jokes).Error
+	err = db.Debug().
+		Model(&Joke{}).
+		Where("owner = ?", j.Owner).
+		Find(&jokes).
+		Error
 	if err != nil {
-		return &[]Joke{}, err
+		return []Joke{}, err
 	}
 
-	return &jokes, nil
+	return jokes, nil
+}
+
+func (j *Joke) CollectJokesByLang(db *gorm.DB) ([]Joke, error) {
+	var err error
+
+	jokes := []Joke{}
+
+	err = db.Debug().
+		Model(&Joke{}).
+		Where("language = ?", j.Language).
+		Find(&jokes).
+		Error
+	if err != nil {
+		return []Joke{}, err
+	}
+
+	return jokes, nil
+}
+
+func (j *Joke) CollectJokesByTimeRange(db *gorm.DB) ([]Joke, error) {
+	var err error
+
+	jokes := []Joke{}
+
+	err = db.Debug().
+		Model(&Joke{}).
+		Where("created_at > ?", j.CreatedAt).
+		Find(&jokes).
+		Error
+	if err != nil {
+		return []Joke{}, err
+	}
+
+	return jokes, nil
 }
